@@ -27,7 +27,7 @@ class HomeViewModel: HomeViewModelType {
 	}
 
 	// Outputs
-	@Published var text: String = ""
+	@Published private(set) var text: String = ""
 	
 	var coordinatorInput: CoordinatorInput!
 	var coordinatorOutput: CoordinatorOutput!

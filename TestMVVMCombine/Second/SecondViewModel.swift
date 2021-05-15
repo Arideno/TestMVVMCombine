@@ -23,7 +23,7 @@ class SecondViewModel: SecondViewModelType {
 		closeSubject.send(text)
 	}
 	
-	// Outputs
+	// Bindings
 	@Published var text: String = ""
 	
 	var coordinatorInput: CoordinatorInput!
