@@ -32,9 +32,7 @@ class HomeCoordinator: Coordinator<Void> {
 				guard let self = self, let viewController = viewController else { return Empty(completeImmediately: true).eraseToAnyPublisher() }
 				return self.coordinate(to: SecondCoordinator(presentingViewController: viewController))
 			}
-			.sink { [weak viewModel] text in
-				viewModel?.text = text
-			}
+			.subscribe(viewModel.coordinatorOutput.textReceived)
 			.store(in: &cancelBag)
 		
 		return Empty<Void, Never>(completeImmediately: false)

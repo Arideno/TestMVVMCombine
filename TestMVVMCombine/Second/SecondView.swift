@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct SecondView: View {
-	@ObservedObject var viewModel: SecondViewModel
+struct SecondView<VM>: View where VM: SecondViewModelType {
+	@ObservedObject var viewModel: VM
 	
 	var body: some View {
 		VStack {

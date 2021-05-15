@@ -7,22 +7,44 @@
 
 import Combine
 
-class SecondViewModel: ObservableObject {
-	var coordinatorInput: CoordinatorInput!
+protocol SecondViewModelType: ObservableObject {
+	// Inputs
+	func close()
 	
+	// Bindings
+	var text: String { get set }
+}
+
+class SecondViewModel: SecondViewModelType {
 	private let closeSubject = PassthroughSubject<String, Never>()
+	
+	// Inputs
+	func close() {
+		closeSubject.send(text)
+	}
+	
+	// Outputs
+	@Published var text: String = ""
+	
+	var coordinatorInput: CoordinatorInput!
+	var coordinatorOutput: CoordinatorOutput!
 	
 	struct CoordinatorInput {
 		var close: AnyPublisher<String, Never>
 	}
 	
-	init() {
-		coordinatorInput = CoordinatorInput(close: closeSubject.eraseToAnyPublisher())
+	struct CoordinatorOutput {
+		
 	}
 	
-	@Published var text: String = ""
+	init() {
+		coordinatorInput = CoordinatorInput(close: closeSubject.eraseToAnyPublisher())
+		coordinatorOutput = CoordinatorOutput()
+		
+		setupSubjects()
+	}
 	
-	func close() {
-		closeSubject.send(text)
+	private func setupSubjects() {
+		
 	}
 }

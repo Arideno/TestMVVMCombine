@@ -7,22 +7,49 @@
 
 import Combine
 
-class HomeViewModel: ObservableObject {
-	var coordinatorInput: CoordinatorInput!
+protocol HomeViewModelType: ObservableObject {
+	// Inputs
+	func goToSecondView()
 	
+	// Outputs
+	var text: String { get }
+}
+
+class HomeViewModel: HomeViewModelType {
+	
+	private var cancelBag = Set<AnyCancellable>()
 	private let goToSecondViewSubject = PassthroughSubject<Void, Never>()
+	private let textReceivedSubject = PassthroughSubject<String, Never>()
+	
+	// Inputs
+	func goToSecondView() {
+		goToSecondViewSubject.send(())
+	}
+
+	// Outputs
+	@Published var text: String = ""
+	
+	var coordinatorInput: CoordinatorInput!
+	var coordinatorOutput: CoordinatorOutput!
 	
 	struct CoordinatorInput {
 		var goToSecondView: AnyPublisher<Void, Never>
 	}
 	
-	init() {
-		coordinatorInput = CoordinatorInput(goToSecondView: goToSecondViewSubject.eraseToAnyPublisher())
+	struct CoordinatorOutput {
+		var textReceived: PassthroughSubject<String, Never>
 	}
 	
-	@Published var text: String = ""
+	init() {
+		coordinatorInput = CoordinatorInput(goToSecondView: goToSecondViewSubject.eraseToAnyPublisher())
+		coordinatorOutput = CoordinatorOutput(textReceived: textReceivedSubject)
+		
+		setupSubjects()
+	}
 	
-	func goToSecondView() {
-		goToSecondViewSubject.send(())
+	private func setupSubjects() {
+		textReceivedSubject
+			.assign(to: \.text, on: self)
+			.store(in: &cancelBag)
 	}
 }
