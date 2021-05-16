@@ -19,7 +19,7 @@ typealias NavigationBackClosure = (() -> ())
 
 protocol RouterProtocol: NSObject {
 	func push(_ drawable: Drawable, isAnimated: Bool, onNavigateBack: NavigationBackClosure?)
-	func pop(_ isAnimated: Bool)
+	func pop(_ drawable: Drawable, _ isAnimated: Bool)
 }
 
 class Router: NSObject, RouterProtocol {
@@ -42,8 +42,8 @@ class Router: NSObject, RouterProtocol {
 		navigationController.pushViewController(viewController, animated: isAnimated)
 	}
 	
-	func pop(_ isAnimated: Bool) {
-		guard let previousController = navigationController.popViewController(animated: isAnimated) else { return }
+	func pop(_ drawable: Drawable, _ isAnimated: Bool) {
+		guard navigationController.topViewController === drawable.viewController, let previousController = navigationController.popViewController(animated: isAnimated) else { return }
 		closures.removeValue(forKey: previousController.description)
 	}
 	

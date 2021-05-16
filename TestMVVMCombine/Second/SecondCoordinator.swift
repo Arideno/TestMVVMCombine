@@ -26,8 +26,9 @@ class SecondCoordinator: Coordinator<String> {
 		}
 		
 		return viewModel.coordinatorInput.close
-			.handleEvents(receiveOutput: { [weak router] _ in
-				router?.pop(true)
+			.handleEvents(receiveOutput: { [weak router, weak viewController] _ in
+				guard let viewController = viewController else { return }
+				router?.pop(viewController, true)
 			})
 			.eraseToAnyPublisher()
 	}
