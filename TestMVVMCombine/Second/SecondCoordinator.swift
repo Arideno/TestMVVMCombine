@@ -10,10 +10,10 @@ import Combine
 import SwiftUI
 
 class SecondCoordinator: Coordinator<String> {
-	private weak var presentingViewController: UIViewController!
+	private let router: Router!
 	
-	init(presentingViewController: UIViewController) {
-		self.presentingViewController = presentingViewController
+	init(router: Router) {
+		self.router = router
 	}
 	
 	override func start() -> AnyPublisher<String, Never> {
@@ -21,11 +21,13 @@ class SecondCoordinator: Coordinator<String> {
 		let viewController = UIHostingController(rootView: SecondView(viewModel: viewModel))
 		presentedViewController = viewController
 		
-		presentingViewController?.navigationController?.pushViewController(viewController, animated: true)
+		router.push(viewController, isAnimated: true) { [weak viewModel] in
+			viewModel?.close()
+		}
 		
 		return viewModel.coordinatorInput.close
-			.handleEvents(receiveOutput: { [weak viewController] _ in
-				viewController?.navigationController?.popViewController(animated: true)
+			.handleEvents(receiveOutput: { [weak router] _ in
+				router?.pop(true)
 			})
 			.eraseToAnyPublisher()
 	}

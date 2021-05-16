@@ -11,9 +11,9 @@ import SwiftUI
 
 class HomeCoordinator: Coordinator<Void> {
 	
-	let window: UIWindow
-	
-	var cancelBag = Set<AnyCancellable>()
+	private let window: UIWindow
+	private var router: Router!
+	private var cancelBag = Set<AnyCancellable>()
 	
 	init(window: UIWindow) {
 		self.window = window
@@ -24,13 +24,14 @@ class HomeCoordinator: Coordinator<Void> {
 		let viewController = UIHostingController(rootView: HomeView(viewModel: viewModel))
 		presentedViewController = viewController
 		
-		window.rootViewController = UINavigationController(rootViewController: viewController)
+		router = Router(navigationController: UINavigationController(rootViewController: viewController))
+		window.rootViewController = router.navigationController
 		window.makeKeyAndVisible()
 		
 		viewModel.coordinatorInput.goToSecondView
-			.flatMap { [weak self, weak viewController] _ -> AnyPublisher<String, Never> in
-				guard let self = self, let viewController = viewController else { return Empty(completeImmediately: true).eraseToAnyPublisher() }
-				return self.coordinate(to: SecondCoordinator(presentingViewController: viewController))
+			.flatMap { [weak self, weak router] _ -> AnyPublisher<String, Never> in
+				guard let self = self, let router = router else { return Empty(completeImmediately: true).eraseToAnyPublisher() }
+				return self.coordinate(to: SecondCoordinator(router: router))
 			}
 			.subscribe(viewModel.coordinatorOutput.textReceived)
 			.store(in: &cancelBag)
